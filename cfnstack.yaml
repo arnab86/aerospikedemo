@@ -8,7 +8,7 @@ Parameters:
     Default: t3.medium
   InstanceTypeApp:
     Description: EC2 Instance Type for Python APP
-    type: String
+    Type: String
     Default: t2.micro
   KeyName:
     Description: Name of an existing EC2 KeyPair for SSH access
@@ -28,7 +28,8 @@ Parameters:
     Default: ami-0b5673b5f6e8f7fa7
   GitHubRepo:
     Type: String
-    Description: https://github.com/arnab86/aerospikedemo.git
+    Default: https://github.com/arnab86/aerospikedemo.git
+    Description: My Public Repo
   GitHubBranch:
     Type: String
     Default: main
@@ -144,6 +145,8 @@ Resources:
       InstanceType: !Ref InstanceTypeApp
       KeyName: !Ref KeyName
       ImageId: !Ref AmiID
+      AvailabilityZone: eu-central-1a
+      SubnetId: !Ref SubnetA
       SecurityGroupIds:
         - !Ref SecurityGroup
       UserData:
