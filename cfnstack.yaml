@@ -1,0 +1,281 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy three EC2 instances across multiple AZs in eu-central-1 region with aerospike db installed
+
+Parameters:
+  InstanceType:
+    Description: EC2 Instance Type for Aerospike
+    Type: String
+    Default: t3.medium
+  InstanceTypeApp:
+    Description: EC2 Instance Type for Python APP
+    type: String
+    Default: t2.micro
+  KeyName:
+    Description: Name of an existing EC2 KeyPair for SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: aerospikedemo
+  NodeCount:
+    Description: Number of Aerospike db nodes to create
+    Type: Number
+    Default: 3
+  VolumeSize:
+    Description: Size of EBS volume for Aerospike data storage (in GiB)
+    Type: Number
+    Default: 10
+  AmiID:
+    Description: Ami id for amazon linux in eu-central-1
+    Type: String
+    Default: ami-0b5673b5f6e8f7fa7
+  GitHubRepo:
+    Type: String
+    Description: https://github.com/arnab86/aerospikedemo.git
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: Branch to deploy from the GitHub repository.
+
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: AeroDemoVPC
+
+  # Subnets in different AZs
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: eu-central-1a
+      MapPublicIpOnLaunch: true
+
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: eu-central-1b
+      MapPublicIpOnLaunch: true
+
+  SubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: eu-central-1c
+      MapPublicIpOnLaunch: true
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Route Table and Route
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  SubnetRouteTableAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetA
+      RouteTableId: !Ref RouteTable
+
+  SubnetRouteTableAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetB
+      RouteTableId: !Ref RouteTable
+
+  SubnetRouteTableAssociationC:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetC
+      RouteTableId: !Ref RouteTable
+
+  # Security Group
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH access
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3002
+          CidrIp: 0.0.0.0/0
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Aerospike traffic to ALB.
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3002
+          CidrIp: 0.0.0.0/0
+  # EC2 Instances for Puthon APP
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeApp
+      KeyName: !Ref KeyName
+      ImageId: !Ref AmiID
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y git python3-pip
+          cd /home/ec2-user
+          git clone -b ${GitHubBranch} ${GitHubRepo} app
+          cd app
+          pip3 install -r requirements.txt
+  # EC2 Instances for aerospike
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: AerospikeLaunchTemplate
+      LaunchTemplateData:
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        ImageId: !Ref AmiID
+        BlockDeviceMappings:
+        - DeviceName: /dev/xvdb
+          Ebs:
+            VolumeSize: !Ref VolumeSize
+            VolumeType: gp3
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: AutoScalingInstance
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            # Install Aerospike
+            sudo wget -O aerospike.tgz https://download.aerospike.com/artifacts/aerospike-server-community/7.2.0/aerospike-server-community_7.2.0.4_tools-11.1.1_amzn2023_x86_64.tgz 
+            sudo tar -xvf aerospike.tgz
+            cd aerospike-server-community*
+            sudo ./asinstall
+            cat <<EOF > /etc/aerospike/aerospike.conf
+            service {
+                    proto-fd-max 15000
+                    cluster-name cakery
+            }
+            logging {
+                    console {
+                            context any info
+                    }
+            }
+            network {
+                    service {
+                            address any
+                            port 3000
+                    }
+                    heartbeat {
+                            mode mesh
+                            port 3002
+                            mesh-seed-address-port 10.0.0.0 3002
+                            mesh-seed-address-port 10.0.0.0 3002
+                            interval 150
+                            timeout 10
+                    }
+                    fabric {
+                            port 3001
+                    }
+            }
+            namespace mydemo {
+                    replication-factor 2
+                    storage-engine memory {
+                            data-size 1G
+                    }
+            }
+            EOF
+            # Start Aerospike service
+            # sudo systemctl start aerospike
+            # sudo systemctl enable aerospike
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref SubnetA
+        - !Ref SubnetB
+        - !Ref SubnetC
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: '1'
+      MinSize: !Ref NodeCount
+      MaxSize: !Ref NodeCount
+      DesiredCapacity: !Ref NodeCount
+      TargetGroupARNs:
+        - !Ref NLBTargetGroup
+      Tags:
+        - Key: Name
+          Value: AerospikeNode
+          PropagateAtLaunch: true
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: AerospikeALB
+      Scheme: internet-facing
+      Type: network
+      Subnets:
+      -  !Ref SubnetA
+      -  !Ref SubnetB
+      - !Ref SubnetC
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+  NLBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MultiAZTargetGroup
+      VpcId: !Ref VPC
+      Protocol: TCP
+      Port: 3000
+      TargetType: instance
+      HealthCheckProtocol: TCP
+      HealthCheckPort: traffic-port
+      HealthCheckIntervalSeconds: 60
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 2
+  NLBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NLBTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 3000
+      Protocol: TCP
+Outputs:
+  LoadBalancerDNSName:
+    Description: DNS Name of the Elastic Load Balancer
+    Value: !GetAtt NetworkLoadBalancer.DNSName

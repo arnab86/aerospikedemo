@@ -1,0 +1,112 @@
+[
+    {
+        "hotel_id": "bb2597c7-1474-4900-80a1-a737069da9aa",
+        "hotel_name": "Navarro-Jones Hotel",
+        "location": "Johnmouth",
+        "address": "9382 Adrian Drives Suite 414\nEast Lindseyland, MD 62847",
+        "phone": "(256)601-3203",
+        "email": "jonathan30@example.net",
+        "website": "https://velazquez-flores.com/",
+        "rating": 4.6
+    },
+    {
+        "hotel_id": "83b7d746-5ec4-4241-bf43-77c7c84ca4ba",
+        "hotel_name": "Moore Group Hotel",
+        "location": "Duranborough",
+        "address": "211 Patel Lodge Suite 222\nMaryville, CT 06633",
+        "phone": "001-638-983-0470x3278",
+        "email": "ofowler@example.net",
+        "website": "http://www.taylor-guerrero.com/",
+        "rating": 2.5
+    },
+    {
+        "hotel_id": "6460b997-8dd1-489b-82a2-112288d6f0ab",
+        "hotel_name": "Martin Group Hotel",
+        "location": "Roybury",
+        "address": "5678 Carla Mountain\nBrowntown, MP 14559",
+        "phone": "6309282212",
+        "email": "brownsusan@example.org",
+        "website": "https://www.higgins.com/",
+        "rating": 3.6
+    },
+    {
+        "hotel_id": "f4eac730-8661-4db5-937a-e353484cee36",
+        "hotel_name": "Gonzalez, Decker and Novak Hotel",
+        "location": "North Meganport",
+        "address": "87731 Wall Loop Suite 583\nCarterport, WY 23566",
+        "phone": "983-957-8806",
+        "email": "andersonjeremy@example.net",
+        "website": "http://www.gordon.com/",
+        "rating": 4.0
+    },
+    {
+        "hotel_id": "62eb44c2-efc2-4f3e-894f-265b0eedb439",
+        "hotel_name": "Caldwell-Casey Hotel",
+        "location": "Martinmouth",
+        "address": "897 Kelly Gateway Suite 297\nMichelleport, CA 97213",
+        "phone": "001-691-560-8019x269",
+        "email": "matthewboyd@example.org",
+        "website": "https://www.martin-castro.com/",
+        "rating": 4.9
+    },
+    {
+        "hotel_id": "29d734f9-6165-469e-b795-3ec69415f12e",
+        "hotel_name": "Owens Ltd Hotel",
+        "location": "Lake Donnaborough",
+        "address": "751 Shannon Harbor Suite 150\nHooperchester, TX 00538",
+        "phone": "9638294022",
+        "email": "sharonflores@example.net",
+        "website": "http://www.jenkins-lee.com/",
+        "rating": 2.1
+    },
+    {
+        "hotel_id": "7f3ec51f-87e5-400c-91ec-169fd3ef5ca6",
+        "hotel_name": "Wells, Long and Walker Hotel",
+        "location": "East Whitney",
+        "address": "09475 Julia Brook\nStewartmouth, VI 80188",
+        "phone": "+1-541-798-1495x065",
+        "email": "william14@example.net",
+        "website": "http://gross.net/",
+        "rating": 2.6
+    },
+    {
+        "hotel_id": "c3f1cf66-a451-4f19-a391-cf2b5a13bba7",
+        "hotel_name": "Padilla Group Hotel",
+        "location": "Davisfurt",
+        "address": "376 Kevin Cove Suite 166\nSouth Janetshire, MO 33604",
+        "phone": "436.469.4086x649",
+        "email": "gchen@example.com",
+        "website": "http://www.johnson.com/",
+        "rating": 3.5
+    },
+    {
+        "hotel_id": "1f765eaa-77f5-4d26-b0d7-0ad30c860b60",
+        "hotel_name": "Wallace Group Hotel",
+        "location": "Lake Joshua",
+        "address": "066 Elizabeth Centers\nEast Stephenton, AZ 21717",
+        "phone": "505-306-9243",
+        "email": "julia06@example.net",
+        "website": "http://robbins.biz/",
+        "rating": 3.4
+    },
+    {
+        "hotel_id": "6a64d9d0-7a19-4ed5-89f4-b485bb4e563e",
+        "hotel_name": "Moss, Stewart and Morales Hotel",
+        "location": "West Benjamin",
+        "address": "4323 Wright Valley Suite 452\nBrowntown, SC 70633",
+        "phone": "623.553.8087",
+        "email": "stephaniereese@example.org",
+        "website": "http://www.horn.org/",
+        "rating": 2.9
+    }
+]
+{
+
+    "hotel_name": "Navarro-Jones Hotel",
+    "location": "Johnmouth",
+    "address": "9382 Adrian Drives Suite 414\nEast Lindseyland, MD 62847",
+    "phone": "(256)601-3203",
+    "email": "jonathan30@example.net",
+    "website": "https://velazquez-flores.com/",
+    "rating": 4.6
+}
