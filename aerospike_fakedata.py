@@ -1,6 +1,6 @@
 import random
 import faker
-from aerospikedemo.aerospike_connection import AerospikeDBConnection
+from aerospike_connection import AerospikeDBConnection
 from dbconfig import Config
 
 fake = faker.Faker()

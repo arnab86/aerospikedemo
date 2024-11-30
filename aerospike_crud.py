@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import hashlib
 import json
 from dbconfig import Config
-from aerospikedemo.aerospike_connection import AerospikeDBConnection
+from aerospike_connection import AerospikeDBConnection
 
 app = Flask(__name__)
 def gethashfromhotelname(hotel_name):

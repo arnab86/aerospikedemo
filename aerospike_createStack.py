@@ -27,9 +27,6 @@ def create_stack(stack_name, template_file):
 
         print(f"Stack {stack_name} has been created successfully!")
 
-    except boto3.exceptions.SSLError as e:
-        print(f"SSL error occurred: {e}")
-        sys.exit(1)
     except boto3.exceptions.Boto3Error as e:
         print(f"Boto3 error occurred: {e}")
         sys.exit(1)

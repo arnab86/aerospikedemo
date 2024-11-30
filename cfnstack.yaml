@@ -138,7 +138,7 @@ Resources:
           FromPort: 3000
           ToPort: 3002
           CidrIp: 0.0.0.0/0
-  # EC2 Instances for Puthon APP
+  # EC2 Instances for Python APP
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -190,7 +190,7 @@ Resources:
             cat <<EOF > /etc/aerospike/aerospike.conf
             service {
                     proto-fd-max 15000
-                    cluster-name cakery
+                    cluster-name mydemo
             }
             logging {
                     console {
